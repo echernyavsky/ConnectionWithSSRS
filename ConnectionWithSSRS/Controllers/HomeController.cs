@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System.Configuration;
+using System.Data.Entity.Infrastructure.Design;
+using System.Linq;
+using System.Net;
 using System.Web.Mvc;
 using ConnectionWithSSRS.Models;
 using ConnectionWithSSRS.ReportService2010;
@@ -29,7 +32,7 @@ namespace ConnectionWithSSRS.Controllers
 
             var rs = new ReportingService2010()
             {
-                Credentials = System.Net.CredentialCache.DefaultCredentials
+                Credentials = new NetworkCredential(ConfigurationManager.AppSettings["MvcReportViewer.Username"], ConfigurationManager.AppSettings["MvcReportViewer.Password"], "CIFTVDS")
             };
 
             var items = rs.ListChildren("/", true);
@@ -43,7 +46,18 @@ namespace ConnectionWithSSRS.Controllers
 
         public ActionResult GetReport(string path)
         {
-            return PartialView("_ReportView", path);
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = User.Identity.GetUserId();
+                var user = dbContext.Users.FirstOrDefault(it => it.Id == userId);
+
+                if (user != null && user.HasAccessToService)
+                {
+                    return PartialView("_ReportView", path);
+                }
+            }
+
+            return View("Index");
         }
 
         public ActionResult Contact()
