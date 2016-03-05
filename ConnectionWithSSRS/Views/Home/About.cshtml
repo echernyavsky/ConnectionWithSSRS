@@ -1,4 +1,6 @@
-﻿@using MvcReportViewer
+﻿@using Microsoft.AspNet.Identity
+@using MvcReportViewer
+@model ConnectionWithSSRS.Models.ReportPageViewModel
 @{
     ViewBag.Title = "About";
 }
@@ -7,4 +9,34 @@
 
 <p>Use this area to provide additional information.</p>
 
-@Html.MvcReportViewer("/Тестовый отчет", new { style = "width: 1000px; height: 400px; "})
+@if (Model.User.HasAccessToService)
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Desription</th>
+            <th>Size</th>
+            <th>Last Modified By</th>
+            <th>Last Modified Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var report in Model.Reports)
+        {
+            if (!report.Hidden)
+            {
+                <tr>
+                    <td>@report.ID</td>
+                    <td>@Html.ActionLink(report.Name, "GetReport", new {path = report.Path})</td>
+                    <td>@report.Description</td>
+                    <td>@report.Size</td>
+                    <td>@report.ModifiedBy</td>
+                    <td>@report.ModifiedDate.ToString("g")</td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+}

@@ -40,6 +40,11 @@ namespace ConnectionWithSSRS
         {
         }
 
+        public async Task<ApplicationUser> GetUser(string userId)
+        {
+            return await Store.FindByIdAsync(userId);
+        }
+
         public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options, IOwinContext context) 
         {
             var manager = new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<ApplicationDbContext>()));
